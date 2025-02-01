@@ -8,7 +8,7 @@ import "./PriceConverter.sol";
 
 error NotOwner();
 
-contract FundMe1{
+contract FundMe{
     using PriceConverter for uint256;
 
     // uint256 public minimumUSD = 50 * 1e18;
@@ -17,8 +17,8 @@ contract FundMe1{
     // 751553 See its less than before
     // remember constant variable have diffrent naming convention (make minimumUSD in all caps)
 
-    address[] public funders;
-    mapping(address => uint256) public addressToAmountFunded;
+    address[] public s_funders;
+    mapping(address => uint256) public s_addressToAmountFunded;
 
     // address public owner;
     address public immutable i_owner;
@@ -26,6 +26,7 @@ contract FundMe1{
     // 2. now transaction cost is 728329 , you can see its decresing
 
     AggregatorV3Interface public priceFeed;
+    // this is also storage variable
     constructor(address priceFeedAddress) {
         i_owner = msg.sender;
         priceFeed = AggregatorV3Interface(priceFeedAddress);
@@ -39,19 +40,19 @@ contract FundMe1{
         // Check is the condition is true otherwise revert
         // What is Reverting??
         // undo any action before, and send remaining gas back
-        funders.push(msg.sender);
+        s_funders.push(msg.sender);
         // Address of who is calling this function
-        addressToAmountFunded[msg.sender] += msg.value;
+        s_addressToAmountFunded[msg.sender] += msg.value;
     }
 
     function withdraw() public onlyOwner{
-        for(uint256 funderIndex = 0; funderIndex < funders.length; funderIndex++){
-            address funder = funders[funderIndex];
-            addressToAmountFunded[funder] = 0;
+        for(uint256 funderIndex = 0; funderIndex < s_funders.length; funderIndex++){
+            address funder = s_funders[funderIndex];
+            s_addressToAmountFunded[funder] = 0;
         }
 
         //reset array
-        funders = new address[](0);
+        s_funders = new address[](0);
         // withraw fund from this contract
 
         // 1) transfer
