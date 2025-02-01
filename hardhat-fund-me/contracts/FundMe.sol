@@ -26,7 +26,7 @@ contract FundMe{
     // 2. now transaction cost is 728329 , you can see its decresing
 
     AggregatorV3Interface public priceFeed;
-    // this is also storage variable
+    // this is also storage variable s_priceFeed
     constructor(address priceFeedAddress) {
         i_owner = msg.sender;
         priceFeed = AggregatorV3Interface(priceFeedAddress);
@@ -71,6 +71,24 @@ contract FundMe{
         require(callSuccess, "Call Failed");
     }
 
+    // cheaper withdraw function
+    function cheaperWithdraw() public onlyOwner{
+
+        // instead of reading from for loop we read it and store it in memory
+        // then we read from memory
+        address[] memory funders = s_funders;
+        // rememer mappings can't be in memory, Sorry!
+
+        for(uint256 funderIndex = 0; funderIndex < funders.length; funderIndex++){
+            address funder = funders[funderIndex];
+            s_addressToAmountFunded[funder] = 0;
+        }
+        s_funders = new address[](0);
+        // withraw fund from this contract
+        (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
+        require(callSuccess, "Call Failed");
+    }
+    
     modifier onlyOwner {
         // 3. require(msg.sender == i_owner, "Sender is not owner");
         // for gas optimisation
