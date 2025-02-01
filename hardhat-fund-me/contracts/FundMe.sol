@@ -109,6 +109,8 @@ contract FundMe{
     fallback() external payable {
         fund();
     }
+
+    // make variables private and add getter functions
 }
 
 // Stack Exchange ETH
